@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Room {
+  id     String  @id
+  name   String
+  users  User[]
+  rounds Round[]
+}
+
+model User {
+  name            String            @id
+  roomId          String?
+  room            Room?             @relation(fields: [roomId], references: [id])
+  hands           Hand[]
+  bets            Bet[]
+  CardAssociation CardAssociation[]
+  Trick           Trick[]
+}
+
+model Round {
+  id     String  @id @default(uuid())
+  room   Room    @relation(fields: [roomId], references: [id])
+  roomId String
+  number Int
+  hands  Hand[]
+  bets   Bet[]
+  tricks Trick[]
+}
+
+model Hand {
+  id       String            @id @default(uuid())
+  user     User              @relation(fields: [userName], references: [name])
+  userName String
+  round    Round             @relation(fields: [roundId], references: [id])
+  roundId  String
+  cards    CardAssociation[]
+}
+
+model Bet {
+  id       String @id @default(uuid())
+  user     User   @relation(fields: [userName], references: [name])
+  userName String
+  round    Round  @relation(fields: [roundId], references: [id])
+  roundId  String
+  value    Int
+}
+
+model Card {
+  id              Int               @id @default(autoincrement())
+  value           Int
+  type            String
+  CardAssociation CardAssociation[]
+}
+
+model CardAssociation {
+  id       String  @id @default(uuid())
+  card     Card    @relation(fields: [cardId], references: [id])
+  cardId   Int
+  hand     Hand?   @relation(fields: [handId], references: [id])
+  handId   String?
+  trick    Trick?  @relation(fields: [trickId], references: [id])
+  trickId  String?
+  user     User?   @relation(fields: [userName], references: [name])
+  userName String?
+  // Permet d'associer une carte à une main OU à un trick (pli)
+}
+
+model Trick {
+  id         String            @id @default(uuid())
+  round      Round             @relation(fields: [roundId], references: [id])
+  roundId    String
+  order      Int // numéro du pli dans le round
+  cards      CardAssociation[]
+  winner     User?             @relation(fields: [winnerName], references: [name])
+  winnerName String?
+}
