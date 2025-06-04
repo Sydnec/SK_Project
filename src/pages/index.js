@@ -22,7 +22,7 @@ export default function Home() {
         .then(user => {
           if (user && user[0].roomId) {
             // Redirige vers la première room trouvée
-            router.push(`/room/${user[0].roomId}`);
+            router.push(`/${user[0].roomId}`);
           }
         });
     }
@@ -82,7 +82,7 @@ export default function Home() {
       });
       if (res.ok) {
         const room = await res.json();
-        router.push(`/room/${room.id}`);
+        router.push(`/${room.id}`);
       } else {
         alert("Erreur lors de la création de la room.");
       }
@@ -110,7 +110,7 @@ export default function Home() {
         body: JSON.stringify({ roomId }),
       });
       if (userRes.ok) {
-        router.push(`/room/${roomId}`);
+        router.push(`/${roomId}`);
       } else {
         alert("Impossible de rejoindre la room.");
       }
